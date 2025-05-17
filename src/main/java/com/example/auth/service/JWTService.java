@@ -20,26 +20,27 @@ import java.util.function.Function;
 @Service
 public class JWTService {
 
-    private String secretKey = "";
+    // Replace this with a secure key in production (can be in application.properties)
+    private final String secretKey = "4E634D565135716F75435A7A73506A76485736615145726C623879514A7334";
 
-    public JWTService(){
-        try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk = keyGenerator.generateKey();
-            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public String generateToken(String username) {
+//    public JWTService(){
+//        try {
+//            KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA256");
+//            SecretKey sk = keyGenerator.generateKey();
+//            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
+//        } catch (NoSuchAlgorithmException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+    public String generateToken(String username, String email) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("username", username);
+        claims.put("email", email);
         return Jwts.builder()
-                .claims()
-                .add(claims)
+                .claims(claims)
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() * 60 * 60 * 30))
-                .and()
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 30)) // 30 hours
                 .signWith(getKey())
                 .compact();
     }
@@ -51,6 +52,11 @@ public class JWTService {
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+    public String extractEmail(String token){
+        final Claims claims = extractAllClaims(token);
+        System.out.println(claims);
+        return claims.get("email",String.class);
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
