@@ -1,5 +1,6 @@
 package com.example.auth.Controller;
 
+import com.example.auth.dto.UpdateUserRequest;
 import com.example.auth.model.Users;
 import com.example.auth.service.JWTService;
 import com.example.auth.service.UserService;
@@ -37,7 +38,7 @@ public class UserController {
 //        return ResponseEntity.ok("Secret admin data");
 //    }
 
-    @GetMapping("/me")
+    @GetMapping("/user/me")
     public ResponseEntity<Map<String, String>> whoAmI(@RequestHeader("Authorization") String authHeader) {
 
         String token = authHeader.substring(7); // Remove "Bearer "
@@ -52,6 +53,10 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-//    @PatchMapping("/me/update")
+    @PatchMapping("/user/update-profile")
+    public Users updateProfile(@RequestHeader("Authorization") String authHeader, @RequestBody UpdateUserRequest request){
+        return userService.updateProfile(authHeader, request);
+
+    }
 
 }
